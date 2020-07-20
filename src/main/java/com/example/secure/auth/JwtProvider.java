@@ -1,6 +1,8 @@
 package com.example.secure.auth;
 
 import io.jsonwebtoken.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -17,6 +19,7 @@ public class JwtProvider {
 
     private String secretKey;
     private long validityInMilliseconds;
+    private static final Logger LOGGER = LoggerFactory.getLogger(JwtProvider.class);
 
     @Autowired
     private JwtProvider(@Value("${security.jwt.secret-key}") String secretKey,
@@ -42,25 +45,35 @@ public class JwtProvider {
 
     public boolean isValidToken(String token) {
         try {
-            Jwts.parser().setSigningKey(secretKey).parseClaimsJwt(token);
+            Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .parseClaimsJws(token);
+            LOGGER.info("Token validation is successful");
             return true;
         } catch (JwtException | IllegalArgumentException e) {
+            LOGGER.warn("Token validation failed");
             return false;
         }
     }
 
     public String getUsername(String token){
-        return Jwts.parser().setSigningKey(secretKey)
-                .parseClaimsJws(token).getBody().getSubject();
+        String username = Jwts.parser()
+                .setSigningKey(secretKey)
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
+        return username;
     }
 
-    public List<GrantedAuthority> getRoles(String token) {
+    public Set<GrantedAuthority> getRoles(String token) {
         List<Map<String, String>> roleClaims = Jwts.parser().setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody()
                 .get(ROLES_KEY, List.class);
-        return roleClaims.stream().map(roleClaim ->
-                new SimpleGrantedAuthority(roleClaim.get("authority")))
-                .collect(Collectors.toList());
+
+        return roleClaims
+                .stream()
+                .map(roleClaim -> new SimpleGrantedAuthority(roleClaim.get("authority")))
+                .collect(Collectors.toSet());
     }
 }

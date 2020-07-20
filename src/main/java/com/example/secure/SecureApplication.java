@@ -26,7 +26,7 @@ public class SecureApplication {
                 .apiInfo(new ApiInfo("Simple Banking",
                         "Simple banking web api to test out spring security",
                         "1.0", null,
-                        new Contact("Banking", "http://localhost:8080/bank", ""),
+                        new Contact("Kelechi Iwuorie", "", ""),
                         null, null));
     }
 

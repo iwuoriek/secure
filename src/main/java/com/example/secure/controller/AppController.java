@@ -6,7 +6,9 @@ import com.example.secure.dto.UserCredentials;
 import com.example.secure.dto.UserDto;
 import com.example.secure.service.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -56,6 +58,7 @@ public class AppController {
     @PutMapping
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity updateCustomer(@RequestBody UserDto customer) {
+        new HttpHeaders().setBearerAuth("");
         service.updateCustomer(customer);
         return new ResponseEntity(HttpStatus.OK);
     }

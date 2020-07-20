@@ -23,15 +23,13 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/bank/register").permitAll()
                 .antMatchers("/bank/login").permitAll()
-                .antMatchers("/bank/**").hasRole(RoleType.ADMIN.name())
-                .anyRequest()
-                .authenticated();
+                .anyRequest().authenticated();
 
         http.csrf().disable();
+        http.formLogin().disable();
 
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(new JwtFilter(userDetailsService), UsernamePasswordAuthenticationFilter.class);
     }
 

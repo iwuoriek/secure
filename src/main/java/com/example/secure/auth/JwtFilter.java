@@ -29,7 +29,9 @@ public class JwtFilter extends GenericFilterBean {
         String headerValue = ((HttpServletRequest) servletRequest).getHeader("Authorization");
         getBearerToken(headerValue).ifPresent(token -> {
             userDetailsService.loadUserByJwtToken(token).ifPresent(userDetails -> {
-                SecurityContextHolder.getContext().setAuthentication(new PreAuthenticatedAuthenticationToken(userDetails, "", userDetails.getAuthorities()));
+                SecurityContextHolder
+                        .getContext()
+                        .setAuthentication(new PreAuthenticatedAuthenticationToken(userDetails, "", userDetails.getAuthorities()));
             });
         });
         filterChain.doFilter(servletRequest, servletResponse);
@@ -37,8 +39,10 @@ public class JwtFilter extends GenericFilterBean {
 
     private Optional<String> getBearerToken(String headerVal) {
         if (headerVal != null && headerVal.startsWith(BEARER)) {
+            LOGGER.info("Found a bearer token");
             return Optional.of(headerVal.replace(BEARER, "").trim());
         }
+        LOGGER.warn("No token found");
         return Optional.empty();
     }
 }
