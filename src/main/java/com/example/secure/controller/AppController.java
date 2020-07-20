@@ -22,7 +22,7 @@ public class AppController {
     private AppService service;
 
     @PostMapping("/register")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity registerUser(@RequestBody UserDto userDto) {
         String message = service.registerUser(userDto).get();
         return new ResponseEntity(message, HttpStatus.CREATED);
@@ -35,28 +35,28 @@ public class AppController {
     }
 
     @GetMapping("/customer/all")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<PublicUser>> getAllCustomers() {
         List<PublicUser> customerList = service.findAllCustomers();
         return new ResponseEntity<>(customerList, HttpStatus.OK);
     }
 
     @PutMapping("/deposit")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity makeADeposit(@RequestBody FundsTransfer funds) {
         service.makeDeposit(funds);
         return new ResponseEntity(HttpStatus.OK);
     }
 
     @PutMapping("/transfer")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAuthority('CUSTOMER')")
     public ResponseEntity makeATransfer(@RequestBody FundsTransfer funds) {
         service.makeTransfer(funds);
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @PutMapping
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PutMapping("/update")
+    @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     public ResponseEntity updateCustomer(@RequestBody UserDto customer) {
         new HttpHeaders().setBearerAuth("");
         service.updateCustomer(customer);
