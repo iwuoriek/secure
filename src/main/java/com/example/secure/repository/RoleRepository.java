@@ -1,6 +1,6 @@
 package com.example.secure.repository;
 
-import com.example.secure.auth.Role;
+import com.example.secure.entities.Role;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

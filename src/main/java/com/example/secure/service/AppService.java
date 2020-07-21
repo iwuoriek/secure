@@ -1,11 +1,8 @@
 package com.example.secure.service;
 
 import com.example.secure.auth.JwtProvider;
-import com.example.secure.auth.Role;
-import com.example.secure.dto.FundsTransfer;
-import com.example.secure.dto.PublicUser;
-import com.example.secure.dto.UserCredentials;
-import com.example.secure.dto.UserDto;
+import com.example.secure.dto.*;
+import com.example.secure.entities.Role;
 import com.example.secure.entities.Account;
 import com.example.secure.entities.User;
 import com.example.secure.helper.AccountType;
@@ -54,11 +51,10 @@ public class AppService {
 
     public Optional<String> registerUser(UserDto userDto) {
         Optional<String> message = Optional.empty();
-        String password = encoder.encode(userDto.getPassword());
         if (!usernameOrEmailExists(userDto.getUsername(), userDto.getEmail())) {
             User user = Convert.toUser(userDto);
-            user.setPassword(password);
-            if (userDto.getRoles().equalsIgnoreCase("customer")) {
+            user.setPassword(encoder.encode(userDto.getPassword()));
+            if (userDto.getRoles().equalsIgnoreCase(RoleType.CUSTOMER.name())) {
                 Role role = roleRepository.findByRoleName(RoleType.CUSTOMER.name()).get();
                 user.setRoles(role);
 
@@ -71,7 +67,7 @@ public class AppService {
                 accounts.add(savings);
                 accounts.add(checking);
                 user.setAccounts(accounts);
-            } else if (userDto.getRoles().equalsIgnoreCase("admin")) {
+            } else if (userDto.getRoles().equalsIgnoreCase(RoleType.ADMIN.name())) {
                 Role role = roleRepository.findByRoleName(RoleType.ADMIN.name()).get();
                 user.setRoles(role);
             }
@@ -108,25 +104,25 @@ public class AppService {
         return customerList;
     }
 
-    public void updateCustomer(UserDto userDto) {
+    public Optional<PublicUser> updateCustomer(UserDto userDto) {
         User user = userRepository.findByEmail(userDto.getEmail()).get();
         user.setUsername(userDto.getUsername());
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         user.setAddress(userDto.getAddress());
-        user.setPassword(userDto.getPassword());
-        userRepository.save(user);
+        if (!userDto.getPassword().isEmpty()) user.setPassword(encoder.encode(userDto.getPassword()));
+        return Optional.of(Convert.toPublicUser(userRepository.save(user)));
     }
 
-    public void makeDeposit(FundsTransfer funds) {
+    public Optional<AccountDto> makeDeposit(FundsTransfer funds) {
         Account account = accountRepository.findByAccountNumber(funds.getAccountToTransferTo()).get();
         double newBalance = account.getBalance() + funds.getFunds();
         account.setBalance(newBalance);
-        accountRepository.save(account);
+        return Optional.of(Convert.toAccountDto(accountRepository.save(account)));
     }
 
-    public void makeTransfer(FundsTransfer funds) {
-        Account transferFrom = accountRepository.findByAccountNumber(funds.getAccountToTransferTo()).get();
+    public Optional<AccountDto> makeTransfer(FundsTransfer funds) {
+        Account transferFrom = accountRepository.findByAccountNumber(funds.getAccountToTransferFrom()).get();
         Optional<Account> transferTo = accountRepository.findByAccountNumber(funds.getAccountToTransferTo());
 
         if (funds.getFunds() > transferFrom.getBalance()) throw new UnsupportedOperationException("Insufficient funds");
@@ -134,8 +130,8 @@ public class AppService {
 
         double newBalance = transferFrom.getBalance() - funds.getFunds();
         transferFrom.setBalance(newBalance);
-        accountRepository.save(transferFrom);
         makeDeposit(new FundsTransfer(funds.getAccountToTransferTo(), funds.getFunds()));
+        return Optional.of(Convert.toAccountDto(accountRepository.save(transferFrom)));
     }
 
     private Account createAccount(AccountType type) {

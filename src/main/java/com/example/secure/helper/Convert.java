@@ -1,6 +1,6 @@
 package com.example.secure.helper;
 
-import com.example.secure.auth.Role;
+import com.example.secure.entities.Role;
 import com.example.secure.dto.AccountDto;
 import com.example.secure.dto.UserDto;
 import com.example.secure.dto.PublicUser;
@@ -49,6 +49,7 @@ public class Convert {
             user.getAccounts()
                     .forEach(account -> userDto.setAccounts(toAccountDto(account)));
         }
+        userDto.setRoles(user.getRoles());
         return userDto;
     }
 }

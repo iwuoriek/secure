@@ -1,6 +1,6 @@
 package com.example.secure.helper;
 
-import com.example.secure.auth.Role;
+import com.example.secure.entities.Role;
 import com.example.secure.dto.UserDto;
 import com.example.secure.repository.RoleRepository;
 import com.example.secure.service.AppService;

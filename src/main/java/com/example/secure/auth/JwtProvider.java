@@ -1,5 +1,6 @@
 package com.example.secure.auth;
 
+import com.example.secure.entities.Role;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

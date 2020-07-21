@@ -58,7 +58,6 @@ public class AppController {
     @PutMapping("/update")
     @PreAuthorize("hasAnyAuthority('CUSTOMER', 'ADMIN')")
     public ResponseEntity updateCustomer(@RequestBody UserDto customer) {
-        new HttpHeaders().setBearerAuth("");
         service.updateCustomer(customer);
         return new ResponseEntity(HttpStatus.OK);
     }

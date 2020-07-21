@@ -1,6 +1,6 @@
 package com.example.secure.dto;
 
-import com.example.secure.auth.Role;
+import com.example.secure.entities.Role;
 
 import java.util.HashSet;
 import java.util.Set;
